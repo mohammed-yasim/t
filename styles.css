@@ -1,0 +1,17 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: transparent;
+    color: #ffffff;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+    /* Allow clicks to pass through */
+}
