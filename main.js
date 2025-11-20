@@ -9,8 +9,8 @@ function createWindow() {
         height: 300,
         frame: false, // Frameless window
         transparent: true, // Transparent background
-        resizable: false,
         alwaysOnTop: true, // Keep window on top of all others
+        skipTaskbar: true, // Don't show in taskbar
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -18,7 +18,9 @@ function createWindow() {
         backgroundColor: '#00000000' // Fully transparent
     });
 
+    // Apply multiple methods to ensure always on top
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
+    mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
     mainWindow.loadFile('index.html');
 
@@ -46,6 +48,8 @@ function createWindow() {
         const win = BrowserWindow.fromWebContents(event.sender);
         const bounds = win.getBounds();
 
+        console.log('Resize requested. Step:', step, 'Current size:', bounds.width, 'x', bounds.height);
+
         // Calculate new width (step is +100 or -100)
         let newWidth = bounds.width + step;
 
@@ -54,12 +58,19 @@ function createWindow() {
         const MAX_WIDTH = 900;
         newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
 
+        console.log('New width after constraints:', newWidth);
+
         // Maintain aspect ratio (original is 200:300 = 2:3)
         const aspectRatio = 2 / 3;
         const newHeight = Math.round(newWidth / aspectRatio);
 
+        console.log('Setting new size:', newWidth, 'x', newHeight);
+
         // Resize the window
         win.setSize(newWidth, newHeight);
+
+        // Re-enforce always on top after resize
+        win.setAlwaysOnTop(true, 'screen-saver');
     });
 
     // Open DevTools in development mode

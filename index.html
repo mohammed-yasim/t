@@ -73,15 +73,23 @@
         });
 
         // Keyboard shortcuts for resizing
-        window.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', (e) => {
+            console.log('Key pressed:', e.key, 'Code:', e.code, 'KeyCode:', e.keyCode);
+
             // Plus/Equals key (+ or =)
-            if (e.key === '+' || e.key === '=') {
+            // e.key for + is '+', for = is '='
+            // Also check keyCode: 187 is =/+ key, 107 is numpad +
+            if (e.key === '+' || e.key === '=' || e.code === 'Equal' || e.keyCode === 187 || e.keyCode === 107) {
                 e.preventDefault();
+                console.log('Sending resize +100');
                 ipcRenderer.send('resize-window', 100); // Increase by 100
             }
             // Minus/Underscore key (- or _)
-            else if (e.key === '-' || e.key === '_') {
+            // e.key for - is '-', for _ is '_'
+            // Also check keyCode: 189 is -/_ key, 109 is numpad -
+            else if (e.key === '-' || e.key === '_' || e.code === 'Minus' || e.keyCode === 189 || e.keyCode === 109) {
                 e.preventDefault();
+                console.log('Sending resize -100');
                 ipcRenderer.send('resize-window', -100); // Decrease by 100
             }
         });
