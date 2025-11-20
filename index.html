@@ -10,9 +10,79 @@
 
 <body>
     <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background:transparent">
-        <img src="./TrovinnLogo-01.png" alt=""
-            style="position: absolute;bottom:50px; right:50px; width: 300px; height: auto; object-fit: cover;">
+        <img id="logo" src="./TrovinnLogo-01.png" alt=""
+            style="position: absolute; bottom:50px; right:50px; width: 300px; height: auto; object-fit: cover; pointer-events: auto; cursor: grab; user-select: none; -webkit-user-drag: none;">
     </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+        const logo = document.getElementById('logo');
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        // Logo variants
+        const logos = [
+            './TrovinnLogo-01.png',
+            './TrovinnLogo-02.png',
+            './TrovinnLogo-03.png',
+            './TrovinnLogo-04.png',
+
+        ];
+        let currentLogoIndex = 0;
+
+        logo.addEventListener('dblclick', () => {
+            currentLogoIndex = (currentLogoIndex + 1) % logos.length;
+            logo.src = logos[currentLogoIndex];
+        });
+
+        logo.addEventListener('mouseenter', () => {
+            ipcRenderer.send('set-ignore-mouse-events', false);
+        });
+
+        logo.addEventListener('mouseleave', () => {
+            if (!isDragging) {
+                ipcRenderer.send('set-ignore-mouse-events', true, { forward: true });
+            }
+        });
+
+        logo.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            logo.style.cursor = 'grabbing';
+            startX = e.clientX;
+            startY = e.clientY;
+            const rect = logo.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+
+            // Remove bottom/right positioning and switch to top/left for dragging
+            logo.style.bottom = 'auto';
+            logo.style.right = 'auto';
+            logo.style.left = `${initialLeft}px`;
+            logo.style.top = `${initialTop}px`;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                logo.style.left = `${initialLeft + dx}px`;
+                logo.style.top = `${initialTop + dy}px`;
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                logo.style.cursor = 'grab';
+
+                // Check if mouse is still over the logo
+                const rect = logo.getBoundingClientRect();
+                if (e.clientX < rect.left || e.clientX > rect.right ||
+                    e.clientY < rect.top || e.clientY > rect.bottom) {
+                    ipcRenderer.send('set-ignore-mouse-events', true, { forward: true });
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
