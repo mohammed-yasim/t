@@ -71,6 +71,20 @@
                 logo.style.cursor = 'grab';
             }
         });
+
+        // Keyboard shortcuts for resizing
+        window.addEventListener('keydown', (e) => {
+            // Plus/Equals key (+ or =)
+            if (e.key === '+' || e.key === '=') {
+                e.preventDefault();
+                ipcRenderer.send('resize-window', 100); // Increase by 100
+            }
+            // Minus/Underscore key (- or _)
+            else if (e.key === '-' || e.key === '_') {
+                e.preventDefault();
+                ipcRenderer.send('resize-window', -100); // Decrease by 100
+            }
+        });
     </script>
 </body>
 

@@ -42,6 +42,26 @@ function createWindow() {
         event.reply('window-position', bounds);
     });
 
+    ipcMain.on('resize-window', (event, step) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+        const bounds = win.getBounds();
+
+        // Calculate new width (step is +100 or -100)
+        let newWidth = bounds.width + step;
+
+        // Enforce constraints
+        const MIN_WIDTH = 100;
+        const MAX_WIDTH = 900;
+        newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
+
+        // Maintain aspect ratio (original is 200:300 = 2:3)
+        const aspectRatio = 2 / 3;
+        const newHeight = Math.round(newWidth / aspectRatio);
+
+        // Resize the window
+        win.setSize(newWidth, newHeight);
+    });
+
     // Open DevTools in development mode
     if (process.argv.includes('--dev')) {
         mainWindow.webContents.openDevTools();
