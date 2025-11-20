@@ -21,7 +21,7 @@
   },
   "build": {
     "appId": "com.transparent.electron.app",
-    "productName": "TransparentApp",
+    "productName": "Trovinn Projector App",
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico"
