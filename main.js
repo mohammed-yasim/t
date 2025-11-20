@@ -5,7 +5,7 @@ let mainWindow;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 300,
+        width: 200,
         height: 300,
         frame: false, // Frameless window
         transparent: true, // Transparent background
@@ -34,6 +34,12 @@ function createWindow() {
     ipcMain.on('window-move', (event, { x, y }) => {
         const win = BrowserWindow.fromWebContents(event.sender);
         win.setPosition(x, y);
+    });
+
+    ipcMain.on('get-window-position', (event) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+        const bounds = win.getBounds();
+        event.reply('window-position', bounds);
     });
 
     // Open DevTools in development mode

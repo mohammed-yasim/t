@@ -8,14 +8,15 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
+<body
+    style="background: transparent; margin: 0; padding: 0; display: flex; justify-content: center; align-items: flex-start; overflow: hidden;">
     <img id="logo" src="./TrovinnLogo-01.png" alt=""
-        style="width: 100%; height: 100%; object-fit: contain; pointer-events: auto; cursor: grab; user-select: none; -webkit-user-drag: none;">
+        style="width: 100%; height: auto; object-fit: contain; pointer-events: auto; cursor: grab; user-select: none; -webkit-user-drag: none; display: block;">
     <script>
         const { ipcRenderer } = require('electron');
         const logo = document.getElementById('logo');
         let isDragging = false;
-        let offsetX, offsetY;
+        let dragOffset = { x: 0, y: 0 };
 
         // Logo variants
         const logos = [
@@ -23,7 +24,6 @@
             './TrovinnLogo-02.png',
             './TrovinnLogo-03.png',
             './TrovinnLogo-04.png',
-            './TrovinnLogo-05.png'
         ];
         let currentLogoIndex = 0;
 
@@ -45,14 +45,22 @@
         logo.addEventListener('mousedown', (e) => {
             isDragging = true;
             logo.style.cursor = 'grabbing';
-            offsetX = e.clientX;
-            offsetY = e.clientY;
+
+            // Get current window position
+            ipcRenderer.send('get-window-position');
+
+            // Store the offset from window top-left to where user clicked
+            ipcRenderer.once('window-position', (event, bounds) => {
+                dragOffset.x = e.screenX - bounds.x;
+                dragOffset.y = e.screenY - bounds.y;
+            });
         });
 
         window.addEventListener('mousemove', (e) => {
             if (isDragging) {
-                const x = Math.round(e.screenX - offsetX);
-                const y = Math.round(e.screenY - offsetY);
+                // Move window maintaining the grab position
+                const x = Math.round(e.screenX - dragOffset.x);
+                const y = Math.round(e.screenY - dragOffset.y);
                 ipcRenderer.send('window-move', { x, y });
             }
         });
@@ -61,11 +69,6 @@
             if (isDragging) {
                 isDragging = false;
                 logo.style.cursor = 'grab';
-
-                // Re-evaluate click-through status
-                // Since the window IS the logo now, if we are inside, we are inside.
-                // If we are outside (mouseup happened outside?), we might need to reset.
-                // But mouseleave handles the exit.
             }
         });
     </script>
