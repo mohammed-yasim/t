@@ -1,29 +1,12 @@
-const { app, BrowserWindow, screen } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
 let mainWindow;
 
 function createWindow() {
-    const displays = screen.getAllDisplays();
-    let x = 0, y = 0, width = 0, height = 0;
-
-    // Calculate the total bounds of all displays
-    for (const display of displays) {
-        x = Math.min(x, display.bounds.x);
-        y = Math.min(y, display.bounds.y);
-        width = Math.max(width, display.bounds.x + display.bounds.width);
-        height = Math.max(height, display.bounds.y + display.bounds.height);
-    }
-
-    // Adjust width/height to be relative to the top-leftmost point
-    width -= x;
-    height -= y;
-
     mainWindow = new BrowserWindow({
-        x: x,
-        y: y,
-        width: width,
-        height: height,
+        width: 300,
+        height: 300,
         frame: false, // Frameless window
         transparent: true, // Transparent background
         resizable: false,
@@ -46,6 +29,11 @@ function createWindow() {
     ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
         const win = BrowserWindow.fromWebContents(event.sender);
         win.setIgnoreMouseEvents(ignore, options);
+    });
+
+    ipcMain.on('window-move', (event, { x, y }) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+        win.setPosition(x, y);
     });
 
     // Open DevTools in development mode
